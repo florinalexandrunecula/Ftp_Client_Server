@@ -48,7 +48,7 @@ def put(conn, data):
         server directory
     """
     filename = data.split(' ')[1]
-    print("Recieved File: " + filename)
+    print("Receiving File: " + filename)
 
     try:
         # get data and write to file until recieve end signal
@@ -62,6 +62,7 @@ def put(conn, data):
                     stop_point = data.find("EOF-STOP")
                     outfile.write(data[:stop_point])
                     return data[stop_point + 8:]
+        print("File successfully received!")
     except Exception as e:
         print(e)
         error_message = "There has been an error recieving the requested file."
