@@ -3,7 +3,7 @@ import os
 from socket import AF_INET, SOCK_STREAM, socket
 from _thread import *
 
-HOST = '0.0.0.0'
+HOST = '127.0.0.1'
 PORT = 12000
 command_list = ["QUIT", "CLOSE", "OPEN", "GET", "GET_ALL", "PUT"]
 
@@ -61,8 +61,8 @@ def put(conn, data):
                 if "EOF-STOP" in data:
                     stop_point = data.find("EOF-STOP")
                     outfile.write(data[:stop_point])
+                    print("File successfully received!")
                     return data[stop_point + 8:]
-        print("File successfully received!")
     except Exception as e:
         print(e)
         error_message = "There has been an error recieving the requested file."
