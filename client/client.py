@@ -27,9 +27,7 @@ def get(sock, filename):
 def get_all(sock):
     try:
         data = sock.recv(1024).decode("utf-8")
-        if "EOF-STOP" in data:
-            stop_point = data.find("EOF-STOP")
-            print(data[:stop_point])
+        print(data)
     except Exception as e:
         print(e)
         error_message = "There has been an error recieving the file names."

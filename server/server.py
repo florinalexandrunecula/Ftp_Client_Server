@@ -37,8 +37,6 @@ def get_all(conn):
 
         conn.sendall(string_to_send.encode('utf-8'))
 
-        end_message = "EOF-STOP"
-        conn.sendall(end_message.encode('utf-8'))
     except Exception as e:
         error_message = "There has been an error with the request"
         conn.sendall(error_message.encode('utf-8'))
