@@ -49,14 +49,10 @@ def list_files(conn):
     print("Listing files...")
     listing = os.listdir(os.getcwd())
     conn.send(struct.pack("i", len(listing)))
-    total_directory_size = 0
     for i in listing:
         conn.send(struct.pack("i", sys.getsizeof(i)))
         conn.send(i.encode('utf-8'))
-        conn.send(struct.pack("i", os.path.getsize(i)))
-        total_directory_size += os.path.getsize(i)
         conn.recv(BUFFER_SIZE)
-    conn.send(struct.pack("i", total_directory_size))
     conn.recv(BUFFER_SIZE)
     print("Successfully sent file listing")
     return

@@ -82,11 +82,8 @@ def list_files():
         for i in range(int(number_of_files)):
             file_name_size = struct.unpack("i", sock.recv(4))[0]
             file_name = sock.recv(file_name_size)
-            file_size = struct.unpack("i", sock.recv(4))[0]
-            print(f"\t{file_name} - {file_size}b")
+            print(f"\t{file_name}")
             sock.send("1".encode('utf-8'))
-        total_directory_size = struct.unpack("i", sock.recv(4))[0]
-        print(f"Total directory size: {total_directory_size}b")
     except:
         print("Couldn't retrieve listing")
         return
