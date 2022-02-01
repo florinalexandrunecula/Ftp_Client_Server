@@ -3,7 +3,7 @@ from socket import AF_INET, SOCK_STREAM, socket
 
 def get(sock, filename):
     """
-    Send the file with @param: filename from the client directory to server
+        Read the file with @param: filename from the server and save it in the client directory
     """
     print("Recieved File: "+filename)
     try:
@@ -24,9 +24,21 @@ def get(sock, filename):
         sock.sendall(error_message.encode('utf-8'))
 
 
+def get_all(sock):
+    try:
+        data = sock.recv(1024).decode("utf-8")
+        if "EOF-STOP" in data:
+            stop_point = data.find("EOF-STOP")
+            print(data[:stop_point])
+    except Exception as e:
+        print(e)
+        error_message = "There has been an error recieving the file names."
+        sock.sendall(error_message.encode('utf-8'))
+
+
 def put(sock, filename):
     """
-    Read the file with @param: filename from the server and save it in the client directory
+        Send the file with @param: filename from the client directory to server
     """
     try:
         # ensure space to separate filename
@@ -44,7 +56,7 @@ def put(sock, filename):
         sock.sendall(error_message.encode('utf-8'))
 
 
-command_list = ["QUIT", "CLOSE", "OPEN", "GET", "PUT"]
+command_list = ["QUIT", "CLOSE", "OPEN", "GET", "GET_ALL", "PUT"]
 
 HOST = '127.0.0.1'
 PORT = 12000
@@ -87,6 +99,9 @@ while True:
         if command == "GET":
             filename = s.split(' ')[1]
             remainder = get(sock, filename)
+
+        if command == "GET_ALL":
+            get_all(sock)
 
         if command == "PUT":
             filename = s.split(' ')[1]

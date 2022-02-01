@@ -1,15 +1,16 @@
+import os
+
 from socket import AF_INET, SOCK_STREAM, socket
 from _thread import *
 
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
 PORT = 12000
-command_list = ["QUIT", "CLOSE", "OPEN", "GET", "PUT"]
+command_list = ["QUIT", "CLOSE", "OPEN", "GET", "GET_ALL", "PUT"]
 
 
 def get(conn, filename):
     """
-    Read the file with @param: filename from the client and save it in the
-    server directory
+        Send the file with @param: filename from the server directory to client
     """
     try:
         # send the data in the file
@@ -21,14 +22,32 @@ def get(conn, filename):
         conn.sendall(end_message.encode('utf-8'))
     except Exception as e:
         print(e)
-        error_message = ("There has been an error sending the requested file. "
-                         + filename + " might not exist")
+        error_message = f"There has been an error sending the requested file. {filename} might not exist"
+        conn.sendall(error_message.encode('utf-8'))
+
+
+def get_all(conn):
+    """
+        Sends all the file names present in the server directory to client
+    """
+    try:
+        file_names = os.listdir()
+        file_names.remove('server.py')
+        string_to_send = f"Files present: {str(file_names).strip('[]')}"
+
+        conn.sendall(string_to_send.encode('utf-8'))
+
+        end_message = "EOF-STOP"
+        conn.sendall(end_message.encode('utf-8'))
+    except Exception as e:
+        error_message = "There has been an error with the request"
         conn.sendall(error_message.encode('utf-8'))
 
 
 def put(conn, data):
     """
-    Send the file with @param: filename from the server directory to client
+        Read the file with @param: filename from the client and save it in the
+        server directory
     """
     filename = data.split(' ')[1]
     print("Recieved File: " + filename)
@@ -96,7 +115,7 @@ def threaded(conn, addr):
                 sock2.bind((HOST, port))
                 sock2.listen(1)
                 conn2, addr2 = sock2.accept()
-                print("Connected to ", addr2)
+                print(f"Connected to {addr2}")
 
                 # replace the old socket
                 sock = sock2
@@ -107,6 +126,9 @@ def threaded(conn, addr):
                 filename = data.split(' ')[1]
                 get(conn, filename)
 
+            if command == "GET_ALL":
+                get_all(conn)
+
             if command == "PUT":
                 remainder = put(conn, data)
 
@@ -116,7 +138,7 @@ def threaded(conn, addr):
             conn.sendall(data.upper().encode("utf-8"))
 
     # If loop exitted, have disconnected
-    print("Disconnected from:", addr)
+    print(f"Disconnected from: {addr}")
 
 
 def main():
@@ -132,7 +154,7 @@ def main():
     while True:
         conn, addr = sock.accept()
 
-        print("Connected to ", addr)
+        print(f"Connected to {addr}")
 
         start_new_thread(threaded, (conn, addr))
 
